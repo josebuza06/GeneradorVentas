@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script>
+        var generatedSales = '';
+
+        function salesGenerator() {
+
+            var num = document.getElementById("ea").value;
+            generatedSales = `USE punto_venta;<br>
+            TRUNCATE ventas_detalles; <br> 
+            TRUNCATE ventas;<br>
+            INSERT INTO ventas(id,fecha, hora)VALUES <br>(1,'`
+            + generateRandomDate() + "', '" + generateRandomTime() + "'),";
+
+            for (let index = 2; index <= num; index++) {
+                generatedSales += "<br>( "+index+" , '" + generateRandomDate() 
+                + "' , '" + generateRandomTime() + "'),";
+            }
+
+            // Validar y ajustar el último carácter
+            if (generatedSales.endsWith(',')) {
+                generatedSales = generatedSales.slice(0, -1) + ';';
+            }
+
+            generatedSales += "<br>INSERT INTO ventas_detalles(idventas, idproductos) VALUES";
+
+            for (let i = 1; i <= num; i++) {
+                var idventas = Math.floor(Math.random() * 10);
+                for (let j = 0; j < idventas; j++) {
+                    generatedSales += "<br>( "+i+","+Math.floor(1+(Math.random() * 10))+" ),";
+            
+                }
+            }
+            if (generatedSales.endsWith(',')) {
+                generatedSales = generatedSales.slice(0, -1) + ';';
+            
+            }
+
+            document.getElementById("output").innerHTML = generatedSales;
+        }
+
+        function generateRandomDate() {
+            var year = Math.floor(Math.random() * (2022 - 2000 + 1)) + 2000;
+            var month = Math.floor(Math.random() * 12) + 1;
+            var day = Math.floor(Math.random() * 31) + 1;
+            var hour = Math.floor(Math.random() * 24);
+            var minute = Math.floor(Math.random() * 60);
+            var second = Math.floor(Math.random() * 60);
+
+            var randomDate = new Date(year, month - 1, day, hour, minute, second);
+
+            var formattedDate = randomDate.toISOString().split('T')[0];
+
+            return formattedDate;
+        }
+
+        function generateRandomTime() {
+            var hours = Math.floor(Math.random() * 24); 
+            var minutes = Math.floor(Math.random() * 60);
+            var seconds = Math.floor(Math.random() * 60);
+
+            var formattedTime = padLeft(hours) + ":" + padLeft(minutes) + ":" + padLeft(seconds);
+
+            return formattedTime;
+        }
+
+        function padLeft(number) {
+            return number < 10 ? "0" + number : number;
+        }
+
+        function generateSQL(){
+            
+            var file = document.createElement('a');
+            var outputText = generatedSales.replace(/<br>/g, '\n').trim();
+
+            file.setAttribute('href', 'data:text/plane;charset=utf-8,' 
+            + encodeURIComponent(outputText));
+            file.setAttribute('download', 'punto_venta.sql');
+
+            file.style.display = 'none';
+
+            document.body.appendChild(file);
+            
+            file.click();
+            
+            document.body.removeChild(file);
+        }
+
+    </script>
+
+</head>
+
+<body>
+    <input type="button" value="generar ventas" onclick="salesGenerator()">
+    <input type="number" name="numero" id="ea" min = 0 value="10">
+    <br>
+    <br>
+    <input type="button" value="generar SQL" onclick="generateSQL()">
+
+    <p id="output">
+    </p>
+</body>
+
+</html>
